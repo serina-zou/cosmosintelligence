@@ -218,12 +218,6 @@ sections.forEach(section => {
   if (section.querySelector(".panel-video")) videoObserver.observe(section);
 });
 
-menuButton?.addEventListener("click", () => {
-  const isOpen = menuButton.getAttribute("aria-expanded") === "true";
-  menuButton.setAttribute("aria-expanded", String(!isOpen));
-  mobileNav.hidden = isOpen;
-});
-
 mobileNav?.addEventListener("click", event => {
   const button = event.target.closest("[data-page-target]");
   if (!button) return;
@@ -234,6 +228,11 @@ mobileNav?.addEventListener("click", event => {
 
 document.querySelector(".newsletter-form")?.addEventListener("submit", event => {
   event.preventDefault();
+});
+
+window.addEventListener("hashchange", () => {
+  const id = location.hash.slice(1);
+  if (sections.some(section => section.dataset.section === id)) setActivePage(pageForSection(id), id);
 });
 
 const initialSection = location.hash.replace("#", "");
