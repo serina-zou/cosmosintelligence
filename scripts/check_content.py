@@ -36,6 +36,7 @@ for path, page in pages.items():
         if parsed.scheme or parsed.netloc: continue
         target = (ROOT / unquote(parsed.path).lstrip('/')) if parsed.path.startswith('/') else (path.parent / unquote(parsed.path)) if parsed.path else path
         if target.is_dir(): target /= 'index.html'
+        target = target.resolve()
         if not target.exists(): errors.append(f'{path.relative_to(ROOT)}: missing {url}')
         elif parsed.fragment and target in pages and parsed.fragment not in pages[target].ids:
             # The original homepage's #top is a data-section alias for #home.
@@ -44,6 +45,8 @@ for path, page in pages.items():
     for asset in re.findall(r"url\('([^']+)'\)", text):
         target = ROOT/asset.lstrip('/') if asset.startswith('/') else path.parent/asset
         if not target.exists(): errors.append(f'{path}: missing image {asset}')
+    if re.search(r'(?:href|src|data-src)="/(?!/)|url\(\x27/(?!/)', text):
+        errors.append(f'{path}: root-relative URL breaks project-path hosting')
 
 home = (ROOT/'index.html').read_text()
 original = (ROOT/'templates/home.html').read_text()

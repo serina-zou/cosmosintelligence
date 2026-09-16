@@ -8,6 +8,8 @@ import html
 import hashlib
 import json
 import re
+import posixpath
+from urllib.parse import urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = 'https://www.cosmosintelligence.org'
@@ -129,6 +131,16 @@ def main():
         for asset in ('styles.css', 'script.js', 'navigation.js'):
             version = hashlib.sha256((ROOT / asset).read_bytes()).hexdigest()[:10]
             page = page.replace(f'"{asset}"', f'"{asset}?v={version}"').replace(f'"/{asset}"', f'"/{asset}?v={version}"')
+        # A project Pages site lives below /cosmosintelligence/, while the custom
+        # domain lives at /. Relative URLs support both without runtime redirects.
+        def relative_url(match):
+            prefix, url = match.groups()
+            parsed = urlsplit(url)
+            relative = posixpath.relpath(parsed.path, slug)
+            if parsed.path.endswith('/'):
+                relative += '/'
+            return prefix + urlunsplit(('', '', relative, parsed.query, parsed.fragment))
+        page = re.sub(r'((?:href|src|data-src)="|url\(\x27)(/(?!/)[^"\x27]*)(?=["\x27])', relative_url, page)
         destination = ROOT / slug.lstrip('/') / 'index.html'
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(page)
