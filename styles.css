@@ -1309,6 +1309,23 @@ h3 {
   transform: none;
 }
 .knowledge-page .has-side-image { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); }
+.knowledge-page .has-side-image:nth-child(even) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); }
+.knowledge-page .has-side-image:nth-child(even) .panel-content { grid-column: 2; grid-row: 1; }
+.knowledge-page .has-side-image:nth-child(even) .section-image { grid-column: 1; grid-row: 1; }
+.knowledge-page .content-panel { scroll-margin-top: 96px; }
+.knowledge-page.motion-enabled .panel-content {
+  transform: translate3d(0, var(--reveal-y, 0px), 0) scale(var(--reveal-scale, 1));
+}
+.knowledge-page.motion-enabled .section-image {
+  transform: translate3d(0, calc(var(--image-parallax, 0px) + var(--reveal-y, 0px)), 0) scale(var(--reveal-scale, 1));
+}
+.knowledge-page .section-image { overflow: hidden; }
+.knowledge-page .section-image img { transition: transform 1500ms cubic-bezier(.16, 1, .3, 1); }
+.knowledge-page.motion-enabled .section-image:not(.in-view) img { transform: scale(1.06); }
+.knowledge-page .content-panel:focus-within .reveal,
+.knowledge-page .content-panel:focus-within .reveal * {
+  opacity: 1; filter: none; transform: none;
+}
 .knowledge-page .article-copy { gap: 16px; }
 .knowledge-page .article-copy p { max-width: 78ch; }
 .knowledge-page .section-image { margin: 0; min-width: 0; position: relative; z-index: 2; }
@@ -1323,7 +1340,10 @@ h3 {
 @media (max-width: 760px) {
   .knowledge-page main { padding: 88px 18px 24px; }
   .knowledge-page .content-panel { padding: 24px 0; }
-  .knowledge-page .has-side-image { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .knowledge-page .has-side-image,
+  .knowledge-page .has-side-image:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .knowledge-page .has-side-image:nth-child(even) .panel-content,
+  .knowledge-page .has-side-image:nth-child(even) .section-image { grid-column: auto; grid-row: auto; }
   .knowledge-page .section-image img { aspect-ratio: 16 / 9; }
 }
 .subnav { overflow-x: auto; justify-content: flex-start; }
@@ -1336,4 +1356,60 @@ h3 {
   .footer-grid > *, .footer-brand-block > *, .footer-brand > * { min-width: 0; }
   .newsletter-row { width: 100%; grid-template-columns: minmax(0, 1fr) 64px; }
   .footer-column a, .footer-brand em { overflow-wrap: anywhere; }
+}
+
+/* Shared footer: standardized FloLabs layout with Cosmos navigation. */
+.site-footer { --font-body: Arial, Helvetica, sans-serif; background: #111; color: #fff; }
+.site-footer .footer-grid {
+  grid-template-columns: minmax(0, 523fr) minmax(0, 203fr) minmax(0, 309fr) minmax(0, 162fr);
+  gap: 40px;
+  max-width: 1440px;
+  min-height: 738px;
+  padding: 48px 4.3% 52px;
+}
+.site-footer .footer-brand-block { gap: 30px; min-width: 0; }
+.site-footer .footer-brand { grid-template-columns: 70px minmax(0, 1fr); gap: 22px; }
+.site-footer .footer-logo { width: 70px; height: 70px; transform: scale(1.3); }
+.site-footer .footer-brand strong { font-family: var(--font-body); font-size: 29px; font-weight: 700; line-height: 1.2; letter-spacing: 0; }
+.site-footer .footer-brand em { margin-top: 10px; font-size: 20px; line-height: 1.2; padding-left: 10px; }
+.site-footer .footer-description { max-width: 523px; font-size: 18px; line-height: 1.23; color: #888; font-weight: 400; }
+.site-footer .newsletter-form { gap: 20px; margin-top: 8px; }
+.site-footer .newsletter-form label,
+.site-footer .footer-social h3,
+.site-footer .footer-column h2 { font-family: var(--font-body); font-size: 29px; line-height: 1.1; letter-spacing: .1em; font-weight: 700; }
+.site-footer .newsletter-form p { font-size: 18px; line-height: 1.3; font-weight: 400; }
+.site-footer .newsletter-row { width: 100%; height: 43px; grid-template-columns: 1fr 42px; border: 0; }
+.site-footer .newsletter-row input { font-size: 18px; }
+.site-footer .newsletter-row input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.site-footer .newsletter-row button { border: 4px solid #d8d8d8; padding: 0; }
+.site-footer .footer-social { gap: 25px; margin-top: 12px; }
+.site-footer .footer-social a { width: 44px; height: 32px; }
+.site-footer .footer-social a:not(.youtube-link) { width: 32px; border-radius: 2px; font-family: Arial, sans-serif; font-size: 29px; }
+.site-footer .footer-column { min-width: 0; gap: 16px; }
+.site-footer .footer-column h2 { margin-bottom: 6px; }
+.site-footer .footer-column a { font-size: 20px; font-weight: 400; line-height: 1.2; }
+.site-footer .footer-bottom { font-family: var(--font-body); font-size: 20px; font-weight: 400; letter-spacing: .16em; }
+@media (min-width: 621px) and (max-width: 1180px) {
+  .site-footer .footer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); min-height: 0; }
+  .site-footer .footer-brand-block { grid-column: 1 / -1; max-width: 523px; }
+  .site-footer .footer-column h2 { font-size: 24px; }
+  .site-footer .footer-column a { font-size: 18px; }
+}
+@media (max-width: 620px) {
+  .site-footer .footer-grid { grid-template-columns: minmax(0, 1fr); padding: 38px 22px 34px; min-height: 0; gap: 36px; }
+  .site-footer .footer-brand { grid-template-columns: 50px minmax(0, 1fr); gap: 14px; }
+  .site-footer .footer-logo { width: 50px; height: 50px; }
+  .site-footer .footer-brand strong { font-size: 23px; }
+  .site-footer .footer-brand em { font-size: 15px; }
+  .site-footer .newsletter-form label,
+  .site-footer .footer-social h3,
+  .site-footer .footer-column h2 { font-size: 24px; }
+  .site-footer .footer-bottom { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .knowledge-page .reveal, .knowledge-page .word,
+  .knowledge-page .reveal .glass-card, .knowledge-page .reveal .page-mark,
+  .knowledge-page .reveal .statement {
+    opacity: 1 !important; filter: none !important; transform: none !important;
+  }
 }

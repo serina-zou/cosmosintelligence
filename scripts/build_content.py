@@ -104,7 +104,7 @@ def main():
     footer = re.search(r'    <footer.*?</footer>', template, re.S)[0]
     footer = re.sub(r'(<nav class="footer-column" aria-label="Footer navigation">).*?</nav>', lambda m: m[1] + '<h2>NAVIGATION</h2>' + ''.join(link(u, l) for u, l in TOP) + link('/faq/', 'FAQ') + link('/contributors/', 'Contributors') + '</nav>', footer, flags=re.S)
     footer = footer.replace('src="assets/', 'src="/assets/').replace('http://cosmosintelligence.org/', ORIGIN + '/')
-    footer = footer.replace('<div class="footer-grid">', f'<p class="independence">{INDEPENDENCE}</p><div class="footer-grid">')
+    footer = f'<p class="independence">{INDEPENDENCE}</p>' + footer
     pages = [read_page(p) for p in sorted((ROOT / 'content/pages').glob('*.md'))]
     for meta, body in pages:
         slug = meta['slug']
@@ -130,15 +130,15 @@ def main():
             content = panel(heading.removeprefix('# '), chunks[0], image, 'introduction', True, status, images[0])
             for i in range(1, len(chunks), 2):
                 number = (i + 1) // 2
-                side_image = images[(number // 2) % len(images)] if number % 2 == 0 else None
+                side_image = images[number % len(images)]
                 content += panel(chunks[i], chunks[i+1], image, f'section-{i}', side_image=side_image)
             page = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
             {metadata(meta)}
             <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="/styles.css"></head><body class="knowledge-page">{header(slug)}
-            <main id="main-content">{content}</main>{footer}<script src="/navigation.js"></script></body></html>'''
-        for asset in ('styles.css', 'script.js', 'navigation.js'):
+            <main id="main-content">{content}</main>{footer}<script src="/navigation.js"></script><script src="/page-motion.js"></script></body></html>'''
+        for asset in ('styles.css', 'script.js', 'navigation.js', 'page-motion.js'):
             version = hashlib.sha256((ROOT / asset).read_bytes()).hexdigest()[:10]
             page = page.replace(f'"{asset}"', f'"{asset}?v={version}"').replace(f'"/{asset}"', f'"/{asset}?v={version}"')
         # A project Pages site lives below /cosmosintelligence/, while the custom
