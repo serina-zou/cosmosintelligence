@@ -83,14 +83,21 @@ def metadata(meta):
     <meta property="og:description" content="{esc(meta['meta_description'], quote=True)}"><meta property="og:url" content="{url}">
     <script type="application/ld+json">{json.dumps({'@context': 'https://schema.org', '@graph': graph}).replace('<', '&lt;')}</script>'''
 
-def panel(heading, text, image, section_id, hero=False, status=''):
+def panel(heading, text, image, section_id, hero=False, status='', side_image=None):
     tag = 'h1' if hero else 'h2'
     mark = '<a href="/">Home</a> / CosmosIntelligence' if hero else 'CosmosIntelligence / Research + product'
     note = f'<p class="statement">{esc(status)}</p>' if status else ''
-    return f'''<section class="panel content-panel" id="{section_id}" style="--bg: url('/assets/{image}');">
+    visual = ''
+    layout_class = ''
+    if side_image:
+        filename, description = side_image
+        loading = 'eager' if hero else 'lazy'
+        visual = f'<figure class="section-image"><img src="/assets/{filename}" alt="{esc(description, quote=True)}" loading="{loading}" decoding="async"></figure>'
+        layout_class = ' has-side-image'
+    return f'''<section class="panel content-panel{layout_class}" id="{section_id}" style="--bg: url('/assets/{image}');">
       <div class="scrim"></div><div class="panel-content in-view">
       <p class="page-mark">{mark}</p><{tag}>{inline(heading)}</{tag}>{note}
-      <div class="glass-card article-copy">{markdown(text)}</div></div></section>'''
+      <div class="glass-card article-copy">{markdown(text)}</div></div>{visual}</section>'''
 
 def main():
     template = (ROOT / 'templates/home.html').read_text()
@@ -119,9 +126,12 @@ def main():
             chunks = re.split(r'^## (.+)\n', rest, flags=re.M)
             image = 'webb-hubble-new.jpg' if slug.startswith('/research') else 'earth-night.jpg'
             status = 'Product direction: the capabilities and example conversations below describe planned Space Buddy work, not a released application.' if slug.startswith('/product/') else ''
-            content = panel(heading.removeprefix('# '), chunks[0], image, 'introduction', True, status)
+            images = [('andromeda.jpg', 'The Andromeda galaxy'), ('webb-hubble-new.jpg', 'Spiral galaxy with bright stars and glowing dust'), ('hubble-galaxy.jpg', 'Spiral galaxy beside a smaller companion galaxy')] if slug.startswith('/research') else [('earth-night.jpg', 'Earth at night from space'), ('spacewalk.jpg', 'An astronaut working outside a spacecraft'), ('cupola.jpg', 'Earth viewed through spacecraft windows')]
+            content = panel(heading.removeprefix('# '), chunks[0], image, 'introduction', True, status, images[0])
             for i in range(1, len(chunks), 2):
-                content += panel(chunks[i], chunks[i+1], image, f'section-{i}')
+                number = (i + 1) // 2
+                side_image = images[(number // 2) % len(images)] if number % 2 == 0 else None
+                content += panel(chunks[i], chunks[i+1], image, f'section-{i}', side_image=side_image)
             page = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
             {metadata(meta)}
             <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

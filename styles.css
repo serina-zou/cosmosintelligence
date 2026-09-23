@@ -1286,6 +1286,46 @@ h3 {
 .article-copy a { overflow-wrap: anywhere; }
 .independence { max-width: 1440px; margin: 0 auto; padding: 28px 4.3%; font-size: 14px; line-height: 1.6; color: var(--muted); border-bottom: 1px solid var(--line); }
 .knowledge-page .site-header { background: linear-gradient(180deg, rgba(0,0,0,.98), rgba(0,0,0,.84)); }
+.knowledge-page main { padding: 112px var(--panel-pad) 48px; }
+.knowledge-page .content-panel {
+  min-height: 0;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 0;
+  align-items: center;
+  overflow: visible;
+  background-image: none;
+  box-shadow: none;
+}
+.knowledge-page .content-panel::before,
+.knowledge-page .content-panel::after,
+.knowledge-page .content-panel > .scrim { display: none; }
+.knowledge-page .content-panel + .content-panel { border-top: 1px solid var(--soft); }
+.knowledge-page .content-panel .panel-content {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  transform: none;
+}
+.knowledge-page .has-side-image { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); }
+.knowledge-page .article-copy { gap: 16px; }
+.knowledge-page .article-copy p { max-width: 78ch; }
+.knowledge-page .section-image { margin: 0; min-width: 0; position: relative; z-index: 2; }
+.knowledge-page .section-image img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  box-shadow: 0 22px 70px rgba(0,0,0,.26);
+}
+@media (max-width: 760px) {
+  .knowledge-page main { padding: 88px 18px 24px; }
+  .knowledge-page .content-panel { padding: 24px 0; }
+  .knowledge-page .has-side-image { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .knowledge-page .section-image img { aspect-ratio: 16 / 9; }
+}
 .subnav { overflow-x: auto; justify-content: flex-start; }
 .subnav button { flex-shrink: 0; }
 @media (max-width: 1180px) {
