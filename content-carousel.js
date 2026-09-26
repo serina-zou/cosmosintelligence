@@ -22,17 +22,33 @@ document.querySelectorAll('.knowledge-page [data-text-carousel]').forEach((carou
   counter.className = 'carousel-counter';
   counter.setAttribute('aria-live', 'polite');
   counter.setAttribute('aria-atomic', 'true');
-  function button(label, symbol, direction) {
+  function button(label, pathData, direction) {
     const item = document.createElement('button');
     item.type = 'button';
-    item.textContent = symbol;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '24');
+    svg.setAttribute('height', '24');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    svg.style.display = 'block';
+    svg.style.margin = 'auto';
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', pathData);
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    svg.append(path);
+    item.append(svg);
     item.setAttribute('aria-label', label);
     item.setAttribute('aria-controls', track.id);
     item.addEventListener('click', () => go(active + direction));
     return item;
   }
-  const previous = button('Previous text slide', '←', -1);
-  const next = button('Next text slide', '→', 1);
+  const previous = button('Previous text slide', 'M15 18L9 12L15 6', -1);
+  const next = button('Next text slide', 'M9 18L15 12L9 6', 1);
   controls.append(previous, counter, next);
   carousel.append(controls);
   carousel.classList.add('is-carousel');
