@@ -1352,8 +1352,7 @@ h3 {
   align-self: flex-start;
   padding-right: 4px;
 }
-.knowledge-page .carousel-controls { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
-.knowledge-page .carousel-hint { margin-right: auto; color: var(--muted); font-size: 13px; }
+.knowledge-page .carousel-controls { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 12px; }
 .knowledge-page .carousel-counter { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; min-width: 42px; text-align: center; }
 .knowledge-page .carousel-controls button { width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--cyan); font-size: 22px; cursor: pointer; }
 .knowledge-page .carousel-controls button:disabled { opacity: .3; cursor: default; }

@@ -18,9 +18,6 @@ document.querySelectorAll('.knowledge-page [data-text-carousel]').forEach((carou
 
   const controls = document.createElement('div');
   controls.className = 'carousel-controls';
-  const hint = document.createElement('span');
-  hint.className = 'carousel-hint';
-  hint.textContent = 'Scroll to explore';
   const counter = document.createElement('span');
   counter.className = 'carousel-counter';
   counter.setAttribute('aria-live', 'polite');
@@ -36,7 +33,7 @@ document.querySelectorAll('.knowledge-page [data-text-carousel]').forEach((carou
   }
   const previous = button('Previous text slide', '←', -1);
   const next = button('Next text slide', '→', 1);
-  controls.append(hint, previous, counter, next);
+  controls.append(previous, counter, next);
   carousel.append(controls);
   carousel.classList.add('is-carousel');
 
