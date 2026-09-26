@@ -38,7 +38,7 @@ document.querySelectorAll('.knowledge-page [data-text-carousel]').forEach((carou
   carousel.classList.add('is-carousel');
 
   function update() {
-    active = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
+    if (track.clientWidth) active = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
     previous.disabled = active === 0;
     next.disabled = active === slides.length - 1;
     counter.textContent = `${active + 1} / ${slides.length}`;

@@ -1,0 +1,18 @@
+{
+  "/why-cosmosintelligence/": {"title": "What drives us", "start": 1, "end": 3},
+  "/research/mapping-the-cosmos/": {"title": "Read the Universe", "start": 3, "end": 5},
+  "/research/cosmic-graph/": {"title": "Inside the Cosmic Graph", "start": 1, "end": 3},
+  "/research/cosmic-intelligence-consciousness/": {"title": "Explore the questions", "start": 1, "end": 3},
+  "/research/search-for-life-intelligence/": {"title": "Paths to discovery", "start": 1, "end": 4},
+  "/product/space-buddy/": {"title": "Explore the experience", "start": 2, "end": 6},
+  "/product/space-buddy/explore-universe/": {"title": "Your view of the Universe", "start": 1, "end": 4},
+  "/product/space-buddy/ai-companion/": {"title": "Meet your companion", "start": 1, "end": 4},
+  "/product/space-buddy/community-news-events/": {"title": "Find your space community", "start": 1, "end": 4},
+  "/product/space-buddy/vr-xr/": {"title": "Step into the experience", "start": 2, "end": 5},
+  "/product/space-buddy/integrations/planetary-maps-3d/": {"title": "Explore maps and models", "start": 1, "end": 3},
+  "/product/space-buddy/integrations/scientific-data/": {"title": "Explore the data", "start": 1, "end": 3},
+  "/citizen-science/": {"title": "Find a way to participate", "start": 2, "end": 4},
+  "/join/": {"title": "Make a contribution", "start": 1, "end": 3},
+  "/join/roles/": {"title": "Find your role", "start": 1, "end": 6},
+  "/product/space-buddy/build-map/": {"title": "What we are building", "start": 2, "end": 7}
+}

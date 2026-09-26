@@ -124,7 +124,16 @@ def carousel_copy(text, heading):
     return (f'<div class="text-carousel" data-text-carousel aria-label="{esc(heading, quote=True)}" role="region">'
             '<div class="carousel-track">' + ''.join(f'<div class="carousel-slide article-copy">{slide}</div>' for slide in slides) + '</div></div>')
 
-def panel(heading, text, image, section_id, hero=False, status='', side_image=None, carousel=False):
+def topic_tabs(heading, text, section_id, visual):
+    chunks = re.split(r'^### (.+)\n', text.strip(), flags=re.M)
+    panels = []
+    for i in range(1, len(chunks), 2):
+        title, body = chunks[i:i + 2]
+        panels.append(f'<section class="topic-pane in-view" id="{section_id}-topic-{i}" data-tab-label="{esc(title, quote=True)}"><h3>{inline(title)}</h3><div class="article-copy">{markdown(body)}</div></section>')
+    lead = f'<div class="article-copy">{markdown(chunks[0])}</div>' if chunks[0].strip() else ''
+    return f'<section class="chapter-browser topic-browser" id="{section_id}" data-chapter-tabs><h2>{inline(heading)}</h2>{lead}<div class="chapter-stage"><div class="chapter-panes">{"".join(panels)}</div>{visual}</div></section>'
+
+def panel(heading, text, image, section_id, hero=False, status='', side_image=None, carousel=False, layout=None):
     tag = 'h1' if hero else 'h2'
     mark = '<a href="/">Home</a> / CosmosIntelligence' if hero else 'CosmosIntelligence / Research + product'
     note = f'<p class="statement">{esc(status)}</p>' if status else ''
@@ -135,11 +144,32 @@ def panel(heading, text, image, section_id, hero=False, status='', side_image=No
         loading = 'eager' if hero else 'lazy'
         visual = f'<figure class="section-image"><img src="/assets/{filename}" alt="{esc(description, quote=True)}" loading="{loading}" decoding="async"></figure>'
         layout_class = ' has-side-image'
+    if layout:
+        layout_class += f' layout-{layout}'
+    if layout and not hero and len(re.findall(r'^### ', text, re.M)) >= 3:
+        return topic_tabs(heading, text, section_id, visual.replace('section-image', 'chapter-image'))
     copy = carousel_copy(text, heading) if carousel else f'<div class="glass-card article-copy">{markdown(text)}</div>'
     return f'''<section class="panel content-panel{layout_class}" id="{section_id}" style="--bg: url('/assets/{image}');">
       <div class="scrim"></div><div class="panel-content in-view">
       <p class="page-mark">{mark}</p><{tag}>{inline(heading)}</{tag}>{note}
       {copy}</div>{visual}</section>'''
+
+def chapter_group(title, sections, images, selected):
+    panes = []
+    for number, heading, text in sections:
+        section_id = f'section-{number * 2 - 1}'
+        rendered = panel(heading, text, images[0][0], section_id, carousel=section_id in selected, layout='chapter')
+        rendered = rendered.replace('class="panel content-panel layout-chapter"', f'class="panel content-panel layout-chapter" data-tab-label="{esc(heading, quote=True)}"')
+        panes.append(rendered)
+    filename, description = images[1]
+    visual = f'<figure class="chapter-image"><img src="/assets/{filename}" alt="{esc(description, quote=True)}" loading="lazy" decoding="async"></figure>'
+    return f'<section class="chapter-browser" data-chapter-tabs><h2>{esc(title)}</h2><div class="chapter-stage"><div class="chapter-panes">{"".join(panes)}</div>{visual}</div></section>'
+
+def questions(chunks):
+    rows = []
+    for i in range(1, len(chunks), 2):
+        rows.append(f'<details class="question-item in-view" id="section-{i}"><summary><h2>{inline(chunks[i])}</h2><span aria-hidden="true">+</span></summary><div class="article-copy">{markdown(chunks[i + 1])}</div></details>')
+    return '<section class="question-list" aria-label="Frequently asked questions">' + ''.join(rows) + '</section>'
 
 def main():
     template = (ROOT / 'templates/home.html').read_text()
@@ -149,6 +179,7 @@ def main():
     footer = f'<p class="independence">{INDEPENDENCE}</p>' + footer
     pages = [read_page(p) for p in sorted((ROOT / 'content/pages').glob('*.md'))]
     carousels = json.loads((ROOT / 'content/carousels.json').read_text())
+    layouts = json.loads((ROOT / 'content/page-layouts.json').read_text())
     for meta, body in pages:
         slug = meta['slug']
         if slug == '/':
@@ -171,18 +202,30 @@ def main():
             status = 'Product direction: the capabilities and example conversations below describe planned Space Buddy work, not a released application.' if slug.startswith('/product/') else ''
             images = [('andromeda.jpg', 'The Andromeda galaxy'), ('webb-hubble-new.jpg', 'Spiral galaxy with bright stars and glowing dust'), ('hubble-galaxy.jpg', 'Spiral galaxy beside a smaller companion galaxy')] if slug.startswith('/research') else [('earth-night.jpg', 'Earth at night from space'), ('spacewalk.jpg', 'An astronaut working outside a spacecraft'), ('cupola.jpg', 'Earth viewed through spacecraft windows')]
             selected = carousels.get(slug, [])
-            content = panel(heading.removeprefix('# '), chunks[0], image, 'introduction', True, status, images[0], 'introduction' in selected)
+            content = panel(heading.removeprefix('# '), chunks[0], image, 'introduction', True, status, images[0], 'introduction' in selected, layout='hero')
+            group = layouts.get(slug)
             for i in range(1, len(chunks), 2):
                 number = (i + 1) // 2
+                if slug == '/faq/':
+                    content += questions(chunks)
+                    break
+                if group and group['start'] <= number <= group['end']:
+                    if number == group['start']:
+                        grouped = [(n, chunks[2*n - 1], chunks[2*n]) for n in range(group['start'], group['end'] + 1)]
+                        content += chapter_group(group['title'], grouped, images, selected)
+                    continue
+                layout = 'closing' if i == len(chunks) - 2 else 'feature' if number % 3 == 0 else 'editorial'
                 side_image = images[number % len(images)]
-                content += panel(chunks[i], chunks[i+1], image, f'section-{i}', side_image=side_image, carousel=f'section-{i}' in selected)
+                if layout != 'feature' and len(re.findall(r'^### ', chunks[i+1], re.M)) < 3:
+                    side_image = None
+                content += panel(chunks[i], chunks[i+1], image, f'section-{i}', side_image=side_image, carousel=f'section-{i}' in selected, layout=layout)
             page = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
             {metadata(meta)}
             <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-            <link rel="stylesheet" href="/styles.css"></head><body class="knowledge-page">{header(slug)}
-            <main id="main-content">{content}</main>{footer}<script src="/navigation.js"></script><script src="/content-carousel.js"></script><script src="/page-motion.js"></script></body></html>'''
-        for asset in ('styles.css', 'script.js', 'navigation.js', 'page-motion.js', 'content-carousel.js'):
+            <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/inner-layout.css"></head><body class="knowledge-page">{header(slug)}
+            <main id="main-content">{content}</main>{footer}<script src="/navigation.js"></script><script src="/section-tabs.js"></script><script src="/content-carousel.js"></script><script src="/page-motion.js"></script></body></html>'''
+        for asset in ('styles.css', 'script.js', 'navigation.js', 'page-motion.js', 'content-carousel.js', 'inner-layout.css', 'section-tabs.js'):
             version = hashlib.sha256((ROOT / asset).read_bytes()).hexdigest()[:10]
             page = page.replace(f'"{asset}"', f'"{asset}?v={version}"').replace(f'"/{asset}"', f'"/{asset}?v={version}"')
         # A project Pages site lives below /cosmosintelligence/, while the custom
