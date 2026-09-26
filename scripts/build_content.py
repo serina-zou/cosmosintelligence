@@ -83,7 +83,48 @@ def metadata(meta):
     <meta property="og:description" content="{esc(meta['meta_description'], quote=True)}"><meta property="og:url" content="{url}">
     <script type="application/ld+json">{json.dumps({'@context': 'https://schema.org', '@graph': graph}).replace('<', '&lt;')}</script>'''
 
-def panel(heading, text, image, section_id, hero=False, status='', side_image=None):
+def carousel_copy(text, heading):
+    # Keep topic headings with their explanations; split long lists into readable
+    # groups without losing their order. With no JavaScript every group is shown.
+    blocks = re.split(r'\n\s*\n', text.strip())
+    if any(block.startswith('### ') for block in blocks):
+        groups = []
+        for block in blocks:
+            if block.startswith('### ') or not groups:
+                groups.append([])
+            groups[-1].append(block)
+        slides = [markdown('\n\n'.join(group)) for group in groups]
+    else:
+        units = []
+        for block in blocks:
+            lines = block.splitlines()
+            if all(re.match(r'^(\* |\d+\. )', line) for line in lines):
+                for offset in range(0, len(lines), 4):
+                    chunk = markdown('\n'.join(lines[offset:offset + 4]))
+                    if re.match(r'^\d+\. ', lines[0]):
+                        start = int(lines[0].split('.')[0]) + offset
+                        chunk = chunk.replace('<ol>', f'<ol start="{start}">', 1)
+                    units.append((chunk, 70))
+            else:
+                units.append((markdown(block), len(block.split())))
+        slides, current, count = [], [], 0
+        for rendered, words in units:
+            if current and (count + words > 85 or len(current) >= 3):
+                slides.append('\n'.join(current))
+                current, count = [], 0
+            current.append(rendered)
+            count += words
+        if current:
+            slides.append('\n'.join(current))
+    if len(slides) < 2 and len(blocks) > 1:
+        midpoint = max(1, len(blocks) // 2)
+        slides = [markdown('\n\n'.join(blocks[:midpoint])), markdown('\n\n'.join(blocks[midpoint:]))]
+    if len(slides) < 2:
+        return f'<div class="article-copy">{markdown(text)}</div>'
+    return (f'<div class="text-carousel" data-text-carousel aria-label="{esc(heading, quote=True)}" role="region">'
+            '<div class="carousel-track">' + ''.join(f'<div class="carousel-slide article-copy">{slide}</div>' for slide in slides) + '</div></div>')
+
+def panel(heading, text, image, section_id, hero=False, status='', side_image=None, carousel=False):
     tag = 'h1' if hero else 'h2'
     mark = '<a href="/">Home</a> / CosmosIntelligence' if hero else 'CosmosIntelligence / Research + product'
     note = f'<p class="statement">{esc(status)}</p>' if status else ''
@@ -94,10 +135,11 @@ def panel(heading, text, image, section_id, hero=False, status='', side_image=No
         loading = 'eager' if hero else 'lazy'
         visual = f'<figure class="section-image"><img src="/assets/{filename}" alt="{esc(description, quote=True)}" loading="{loading}" decoding="async"></figure>'
         layout_class = ' has-side-image'
+    copy = carousel_copy(text, heading) if carousel else f'<div class="glass-card article-copy">{markdown(text)}</div>'
     return f'''<section class="panel content-panel{layout_class}" id="{section_id}" style="--bg: url('/assets/{image}');">
       <div class="scrim"></div><div class="panel-content in-view">
       <p class="page-mark">{mark}</p><{tag}>{inline(heading)}</{tag}>{note}
-      <div class="glass-card article-copy">{markdown(text)}</div></div>{visual}</section>'''
+      {copy}</div>{visual}</section>'''
 
 def main():
     template = (ROOT / 'templates/home.html').read_text()
@@ -106,6 +148,7 @@ def main():
     footer = footer.replace('src="assets/', 'src="/assets/').replace('http://cosmosintelligence.org/', ORIGIN + '/')
     footer = f'<p class="independence">{INDEPENDENCE}</p>' + footer
     pages = [read_page(p) for p in sorted((ROOT / 'content/pages').glob('*.md'))]
+    carousels = json.loads((ROOT / 'content/carousels.json').read_text())
     for meta, body in pages:
         slug = meta['slug']
         if slug == '/':
@@ -127,18 +170,19 @@ def main():
             image = 'webb-hubble-new.jpg' if slug.startswith('/research') else 'earth-night.jpg'
             status = 'Product direction: the capabilities and example conversations below describe planned Space Buddy work, not a released application.' if slug.startswith('/product/') else ''
             images = [('andromeda.jpg', 'The Andromeda galaxy'), ('webb-hubble-new.jpg', 'Spiral galaxy with bright stars and glowing dust'), ('hubble-galaxy.jpg', 'Spiral galaxy beside a smaller companion galaxy')] if slug.startswith('/research') else [('earth-night.jpg', 'Earth at night from space'), ('spacewalk.jpg', 'An astronaut working outside a spacecraft'), ('cupola.jpg', 'Earth viewed through spacecraft windows')]
-            content = panel(heading.removeprefix('# '), chunks[0], image, 'introduction', True, status, images[0])
+            selected = carousels.get(slug, [])
+            content = panel(heading.removeprefix('# '), chunks[0], image, 'introduction', True, status, images[0], 'introduction' in selected)
             for i in range(1, len(chunks), 2):
                 number = (i + 1) // 2
                 side_image = images[number % len(images)]
-                content += panel(chunks[i], chunks[i+1], image, f'section-{i}', side_image=side_image)
+                content += panel(chunks[i], chunks[i+1], image, f'section-{i}', side_image=side_image, carousel=f'section-{i}' in selected)
             page = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
             {metadata(meta)}
             <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="/styles.css"></head><body class="knowledge-page">{header(slug)}
-            <main id="main-content">{content}</main>{footer}<script src="/navigation.js"></script><script src="/page-motion.js"></script></body></html>'''
-        for asset in ('styles.css', 'script.js', 'navigation.js', 'page-motion.js'):
+            <main id="main-content">{content}</main>{footer}<script src="/navigation.js"></script><script src="/content-carousel.js"></script><script src="/page-motion.js"></script></body></html>'''
+        for asset in ('styles.css', 'script.js', 'navigation.js', 'page-motion.js', 'content-carousel.js'):
             version = hashlib.sha256((ROOT / asset).read_bytes()).hexdigest()[:10]
             page = page.replace(f'"{asset}"', f'"{asset}?v={version}"').replace(f'"/{asset}"', f'"/{asset}?v={version}"')
         # A project Pages site lives below /cosmosintelligence/, while the custom

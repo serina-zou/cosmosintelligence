@@ -1331,7 +1331,35 @@ h3 {
   opacity: 1; filter: none; transform: none;
 }
 .knowledge-page .article-copy { gap: 16px; }
-.knowledge-page .article-copy p { max-width: 78ch; }
+.knowledge-page .article-copy p { max-width: 78ch; color: var(--muted); }
+.knowledge-page .text-carousel { min-width: 0; max-width: 100%; }
+.knowledge-page .carousel-track { display: grid; gap: 24px; }
+.knowledge-page .carousel-slide { display: grid; align-content: start; min-width: 0; }
+.knowledge-page .is-carousel .carousel-track {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+  padding-bottom: 12px;
+}
+.knowledge-page .is-carousel .carousel-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  align-self: flex-start;
+  padding-right: 4px;
+}
+.knowledge-page .carousel-controls { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.knowledge-page .carousel-hint { margin-right: auto; color: var(--muted); font-size: 13px; }
+.knowledge-page .carousel-counter { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; min-width: 42px; text-align: center; }
+.knowledge-page .carousel-controls button { width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--cyan); font-size: 22px; cursor: pointer; }
+.knowledge-page .carousel-controls button:disabled { opacity: .3; cursor: default; }
+.knowledge-page .carousel-controls button:hover:not(:disabled) { border-color: var(--cyan); }
+.knowledge-page .carousel-controls button:focus-visible,
+.knowledge-page .carousel-track:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
 .knowledge-page .section-image { margin: 0; min-width: 0; position: relative; z-index: 2; }
 .knowledge-page .section-image img {
   display: block;
