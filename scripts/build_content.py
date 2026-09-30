@@ -36,7 +36,7 @@ def nav(current):
 def header(current):
     return f'''<a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header" aria-label="Website navigation">
-      <a class="brand" href="/" aria-label="CosmosIntelligence home">CosmosIntelligence</a>
+      <a class="brand" href="/" aria-label="CosmosIntelligence home">Cosmosintelligence.org</a>
       <nav class="desktop-nav" aria-label="Page navigation">{nav(current)}</nav>
       <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-navigation"><span></span><span></span></button>
     </header>
@@ -135,7 +135,6 @@ def topic_tabs(heading, text, section_id, visual):
 
 def panel(heading, text, image, section_id, hero=False, status='', side_image=None, carousel=False, layout=None):
     tag = 'h1' if hero else 'h2'
-    mark = '<a href="/">Home</a> / CosmosIntelligence' if hero else 'CosmosIntelligence / Research + product'
     note = f'<p class="statement">{esc(status)}</p>' if status else ''
     visual = ''
     layout_class = ''
@@ -151,7 +150,7 @@ def panel(heading, text, image, section_id, hero=False, status='', side_image=No
     copy = carousel_copy(text, heading) if carousel else f'<div class="glass-card article-copy">{markdown(text)}</div>'
     return f'''<section class="panel content-panel{layout_class}" id="{section_id}" style="--bg: url('/assets/{image}');">
       <div class="scrim"></div><div class="panel-content in-view">
-      <p class="page-mark">{mark}</p><{tag}>{inline(heading)}</{tag}>{note}
+      <{tag}>{inline(heading)}</{tag}>{note}
       {copy}</div>{visual}</section>'''
 
 def chapter_group(title, sections, images, selected):
@@ -168,7 +167,7 @@ def chapter_group(title, sections, images, selected):
 def questions(chunks):
     rows = []
     for i in range(1, len(chunks), 2):
-        rows.append(f'<details class="question-item in-view" id="section-{i}"><summary><h2>{inline(chunks[i])}</h2><span aria-hidden="true">+</span></summary><div class="article-copy">{markdown(chunks[i + 1])}</div></details>')
+        rows.append(f'<details class="question-item in-view" id="section-{i}"><summary><h2>{inline(chunks[i])}</h2><span aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></summary><div class="article-copy">{markdown(chunks[i + 1])}</div></details>')
     return '<section class="question-list" aria-label="Frequently asked questions">' + ''.join(rows) + '</section>'
 
 def main():
@@ -184,7 +183,7 @@ def main():
         slug = meta['slug']
         if slug == '/':
             page = re.sub(r'    <title>.*?<link rel="canonical"[^>]+>', lambda _: metadata(meta), template, count=1, flags=re.S)
-            page = re.sub(r'    <header.*?</header>', lambda _: header('/'), page, count=1, flags=re.S)
+            page = re.sub(r'    <header.*?</header>', lambda _: '<a class="skip-link" href="#main-content">Skip to content</a>', page, count=1, flags=re.S)
             page = re.sub(r'    <div class="mobile-nav" hidden>.*?</div>', '', page, flags=re.S)
             page = re.sub(r'    <footer.*?</footer>', lambda _: footer, page, count=1, flags=re.S)
             page = page.replace('<main id="top">', '<main id="main-content">')
@@ -194,7 +193,7 @@ def main():
                     continue
                 additions += panel(title, text, 'webb-hubble-new.jpg' if i % 2 == 0 else 'earth-night.jpg', f'explore-{i}').replace('class="panel content-panel"', f'class="panel content-panel" data-page="overview" data-section="explore-{i}" data-label="{esc(["Questions", "Space Buddy", "Contribute", "Notes & demos"][i], quote=True)}"')
             page = page.replace('      <section class="panel has-video" id="open"', additions + '\n      <section class="panel has-video" id="open"', 1)
-            page = page.replace('<script src="script.js"></script>', '<script src="script.js"></script><script src="navigation.js"></script>')
+            page = re.sub(r'    <nav class="subnav".*?</nav>', '', page)
         else:
             heading, rest = body.split('\n', 1)
             chunks = re.split(r'^## (.+)\n', rest, flags=re.M)
@@ -228,6 +227,16 @@ def main():
         for asset in ('styles.css', 'script.js', 'navigation.js', 'page-motion.js', 'content-carousel.js', 'inner-layout.css', 'section-tabs.js'):
             version = hashlib.sha256((ROOT / asset).read_bytes()).hexdigest()[:10]
             page = page.replace(f'"{asset}"', f'"{asset}?v={version}"').replace(f'"/{asset}"', f'"/{asset}?v={version}"')
+        # Apply external NASA behavior to both the original Home and generated pages.
+        def nasa_link(match):
+            anchor = match[0]
+            href = re.search(r'href="([^"]+)"', anchor)
+            host = urlsplit(html.unescape(href[1])).hostname if href else ''
+            if host and (host == 'nasa.gov' or host.endswith('.nasa.gov')):
+                anchor = re.sub(r'\s+(?:target|rel)="[^"]*"', '', anchor)
+                anchor = anchor[:-1] + ' target="_blank" rel="noopener noreferrer">'
+            return anchor
+        page = re.sub(r'<a\b[^>]*>', nasa_link, page)
         # A project Pages site lives below /cosmosintelligence/, while the custom
         # domain lives at /. Relative URLs support both without runtime redirects.
         def relative_url(match):

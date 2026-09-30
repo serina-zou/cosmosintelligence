@@ -1444,3 +1444,18 @@ h3 {
     opacity: 1 !important; filter: none !important; transform: none !important;
   }
 }
+
+/* Keep newsletter controls within their column at every footer breakpoint. */
+.site-footer .footer-grid > *,
+.site-footer .footer-brand-block > * { min-width: 0; max-width: 100%; }
+.site-footer .newsletter-form { width: 100%; min-width: 0; }
+.site-footer .newsletter-row { min-width: 0; grid-template-columns: minmax(0, 1fr) 42px; }
+.site-footer .footer-column a { max-width: 100%; overflow-wrap: anywhere; }
+.site-footer .footer-column h2 { white-space: normal; overflow-wrap: anywhere; }
+.site-header .brand { font-size: clamp(16px, 1.6vw, 20px); }
+@media (max-width: 1320px) {
+  .desktop-nav { display: none; }
+  .menu-button { display: flex; flex-shrink: 0; }
+  .site-header { gap: 16px; }
+  .site-header .brand { min-width: 0; overflow-wrap: anywhere; }
+}

@@ -92,9 +92,7 @@ function setActivePage(page, sectionTarget) {
     updateSubnav(targetSection?.dataset.section);
   });
 
-  if (history.replaceState && targetSection) {
-    history.replaceState(null, "", `#${targetSection.dataset.section}`);
-  }
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 }
 
 function updateSubnav(sectionId) {
@@ -113,7 +111,6 @@ const sectionObserver = new IntersectionObserver(
       const id = entry.target.dataset.section;
       dots.forEach(dot => dot.classList.toggle("active", dot.dataset.target === id));
       updateSubnav(id);
-      if (history.replaceState) history.replaceState(null, "", `#${id}`);
     });
   },
   { threshold: 0.45 }

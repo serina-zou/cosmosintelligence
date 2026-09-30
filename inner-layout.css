@@ -133,3 +133,23 @@
   .knowledge-page .chapter-tabs button::after,
   .knowledge-page .question-item summary > span { transition: none; }
 }
+
+/* Compact reading rhythm without removing content or changing its order. */
+.knowledge-page .content-panel { padding-block: 28px; }
+.knowledge-page .layout-hero { min-height: 420px; padding-block: 108px 40px; margin-bottom: 0; }
+.knowledge-page .layout-hero h1 { font-size: clamp(34px, 4vw, 56px); }
+.knowledge-page .chapter-browser { padding-block: 28px; }
+.knowledge-page .chapter-browser > h2 { margin-bottom: 18px; }
+.knowledge-page .chapter-tabs { margin-bottom: 16px; }
+.knowledge-page .chapter-browser.is-tabbed .chapter-panes { min-height: 0; }
+.knowledge-page .chapter-image img { height: clamp(200px, 21vw, 290px); }
+.knowledge-page .layout-feature { min-height: 280px; margin-block: 16px; padding-block: 36px; }
+.knowledge-page .question-item summary > span { display: flex; }
+.knowledge-page .question-item[open] summary > span { transform: rotate(90deg); }
+@media (max-width: 620px) {
+  .knowledge-page .content-panel { padding-block: 24px; }
+  .knowledge-page .layout-hero { min-height: 0; padding-block: 92px 32px; }
+  .knowledge-page .chapter-browser { padding-block: 24px; }
+  .knowledge-page .chapter-image img { height: 180px; }
+  .knowledge-page .layout-feature { padding-block: 28px; min-height: 0; }
+}

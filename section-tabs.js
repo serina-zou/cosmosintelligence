@@ -59,7 +59,10 @@
     });
     const details = target.closest('details');
     if (details) details.open = true;
-    requestAnimationFrame(() => target.scrollIntoView({ block: 'start', behavior: 'instant' }));
+    requestAnimationFrame(() => {
+      target.scrollIntoView({ block: 'start', behavior: 'instant' });
+      history.replaceState(null, '', location.pathname + location.search);
+    });
   }
   window.addEventListener('hashchange', revealAnchor);
   revealAnchor();
