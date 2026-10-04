@@ -1400,7 +1400,7 @@ h3 {
 }
 .site-footer .footer-brand-block { gap: 24px; min-width: 0; }
 .site-footer .footer-brand { grid-template-columns: 54px minmax(0, 1fr); gap: 18px; }
-.site-footer .footer-logo { width: 54px; height: 54px; transform: scale(1.3); }
+.site-footer .footer-logo { width: 54px; height: 54px; transform: none; }
 .site-footer .footer-brand strong { font-family: var(--font-body); font-size: 22px; font-weight: 700; line-height: 1.2; letter-spacing: 0; }
 .site-footer .footer-brand em { margin-top: 10px; font-size: 16px; line-height: 1.2; padding-left: 10px; }
 .site-footer .footer-description { max-width: 523px; font-size: 15px; line-height: 1.23; color: #888; font-weight: 400; }
@@ -1460,7 +1460,7 @@ h3 {
   .site-header .brand { min-width: 0; overflow-wrap: anywhere; }
 }
 
-/* Cosmos identity: red Vulcan salute shared by the wordmark and browser icon. */
+/* Cosmos identity: sky-blue supplied logo shared by the wordmark and browser icon. */
 .brand { display: inline-flex; align-items: center; gap: 9px; }
 .brand-logo { display: block; width: 32px; height: 32px; flex: 0 0 32px; }
 .home-brand { position: absolute; top: 24px; left: var(--panel-pad); z-index: 5; font-size: 20px; }

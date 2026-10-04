@@ -36,7 +36,7 @@ def nav(current):
 def header(current):
     return f'''<a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header" aria-label="Website navigation">
-      <a class="brand" href="/" aria-label="CosmosIntelligence home"><img class="brand-logo" src="/assets/cosmos-salute.svg" alt="" width="32" height="32">Cosmosintelligence.org</a>
+      <a class="brand" href="/" aria-label="CosmosIntelligence home"><img class="brand-logo" src="/assets/cosmos-logo.svg" alt="" width="32" height="32">Cosmosintelligence.org</a>
       <nav class="desktop-nav" aria-label="Page navigation">{nav(current)}</nav>
       <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-navigation"><span></span><span></span></button>
     </header>
@@ -183,7 +183,7 @@ def main():
         slug = meta['slug']
         if slug == '/':
             page = re.sub(r'    <title>.*?<link rel="canonical"[^>]+>', lambda _: metadata(meta), template, count=1, flags=re.S)
-            page = re.sub(r'    <header.*?</header>', lambda _: '<a class="skip-link" href="#main-content">Skip to content</a><a class="brand home-brand" href="/" aria-label="CosmosIntelligence home"><img class="brand-logo" src="/assets/cosmos-salute.svg" alt="" width="32" height="32">Cosmosintelligence.org</a>', page, count=1, flags=re.S)
+            page = re.sub(r'    <header.*?</header>', lambda _: '<a class="skip-link" href="#main-content">Skip to content</a><a class="brand home-brand" href="/" aria-label="CosmosIntelligence home"><img class="brand-logo" src="/assets/cosmos-logo.svg" alt="" width="32" height="32">Cosmosintelligence.org</a>', page, count=1, flags=re.S)
             page = re.sub(r'    <div class="mobile-nav" hidden>.*?</div>', '', page, flags=re.S)
             page = re.sub(r'    <footer.*?</footer>', lambda _: footer, page, count=1, flags=re.S)
             page = page.replace('<main id="top">', '<main id="main-content">')
@@ -224,7 +224,7 @@ def main():
             <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/inner-layout.css"></head><body class="knowledge-page">{header(slug)}
             <main id="main-content">{content}</main>{footer}<script src="/navigation.js"></script><script src="/section-tabs.js"></script><script src="/content-carousel.js"></script><script src="/page-motion.js"></script></body></html>'''
-        page = page.replace('</head>', '<link rel="icon" type="image/svg+xml" href="/assets/cosmos-salute.svg"></head>')
+        page = page.replace('</head>', '<link rel="icon" type="image/svg+xml" href="/assets/cosmos-logo.svg"></head>')
         for asset in ('styles.css', 'script.js', 'navigation.js', 'page-motion.js', 'content-carousel.js', 'inner-layout.css', 'section-tabs.js'):
             version = hashlib.sha256((ROOT / asset).read_bytes()).hexdigest()[:10]
             page = page.replace(f'"{asset}"', f'"{asset}?v={version}"').replace(f'"/{asset}"', f'"/{asset}?v={version}"')
