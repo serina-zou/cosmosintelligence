@@ -183,10 +183,11 @@ def main():
         slug = meta['slug']
         if slug == '/':
             page = re.sub(r'    <title>.*?<link rel="canonical"[^>]+>', lambda _: metadata(meta), template, count=1, flags=re.S)
-            page = re.sub(r'    <header.*?</header>', lambda _: '<a class="skip-link" href="#main-content">Skip to content</a><a class="brand home-brand" href="/" aria-label="CosmosIntelligence home"><img class="brand-logo" src="/assets/cosmos-logo.svg" alt="" width="32" height="32">Cosmosintelligence.org</a>', page, count=1, flags=re.S)
+            page = re.sub(r'    <header.*?</header>', lambda _: header(slug), page, count=1, flags=re.S)
             page = re.sub(r'    <div class="mobile-nav" hidden>.*?</div>', '', page, flags=re.S)
             page = re.sub(r'    <footer.*?</footer>', lambda _: footer, page, count=1, flags=re.S)
             page = page.replace('<main id="top">', '<main id="main-content">')
+            page = page.replace('<script src="script.js"></script>', '<script src="navigation.js"></script><script src="script.js"></script>')
             additions = ''
             for i, (title, text) in enumerate(re.findall(r'^## ([^\n]+)\n(.*?)(?=^## |\Z)', body, re.M | re.S)):
                 if title == 'Independence statement':
