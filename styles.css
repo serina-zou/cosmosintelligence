@@ -1459,3 +1459,13 @@ h3 {
   .site-header { gap: 16px; }
   .site-header .brand { min-width: 0; overflow-wrap: anywhere; }
 }
+
+/* Cosmos identity: red Vulcan salute shared by the wordmark and browser icon. */
+.brand { display: inline-flex; align-items: center; gap: 9px; }
+.brand-logo { display: block; width: 32px; height: 32px; flex: 0 0 32px; }
+.home-brand { position: absolute; top: 24px; left: var(--panel-pad); z-index: 5; font-size: 20px; }
+@media (max-width: 620px) {
+  .home-brand { top: 18px; left: 18px; font-size: 16px; }
+  .brand-logo { width: 28px; height: 28px; flex-basis: 28px; }
+  .site-header .brand { font-size: 15px; gap: 6px; }
+}
